@@ -1,4 +1,4 @@
-# 📚 Documentación de Respuestas UX Writing - IdeaBoost
+# Documentación de Respuestas UX Writing - IdeaBoost
 
 ## Sistema de Generación de Ideas
 
@@ -6,7 +6,7 @@ IdeaBoost utiliza dos tipos de respuestas según la fuente de la consulta:
 
 ---
 
-## 🎯 Respuestas Predefinidas (Prompts Recomendados)
+## Respuestas Predefinidas (Prompts Recomendados)
 
 Cada uno de los 3 prompts recomendados tiene una respuesta **quemada** (hardcoded) que aplica principios específicos de UX Writing:
 

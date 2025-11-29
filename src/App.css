@@ -6,6 +6,14 @@
   position: relative;
   overflow: hidden;
   background: linear-gradient(135deg, #0c4a6e 0%, #1e1b4b 50%, #4c1d95 100%);
+  transition: margin-left 0.3s ease;
+}
+
+/* Cuando el sidebar está abierto en desktop */
+@media (min-width: 769px) {
+  .app-container.with-sidebar {
+    margin-left: 280px;
+  }
 }
 
 /* Fondo animado futurista */

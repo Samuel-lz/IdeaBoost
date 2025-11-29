@@ -2,7 +2,25 @@
 
 Mini-aplicación de IA diseñada con principios de **UX Writing** para ayudar a los usuarios a generar ideas creativas de manera intuitiva y efectiva.
 
-## ✨ Novedades v2.0
+## 🆕 Novedades v3.0 - Sistema de Múltiples Conversaciones
+
+### 📂 Sidebar con Historial
+**Nuevo menú lateral** estilo ChatGPT/Claude que permite gestionar múltiples conversaciones:
+- ✨ **Crear** nuevas conversaciones
+- 📋 **Ver** historial completo con persistencia
+- ✏️ **Renombrar** conversaciones inline
+- 🗑️ **Eliminar** conversaciones con confirmación
+- 💾 **Auto-guardado** automático en localStorage
+- 📱 **Totalmente responsive** con diseño adaptativo
+
+### 🎨 Diseño Profesional
+- Glassmorphism y efectos futuristas
+- Animaciones suaves de 300ms
+- Hover effects en todos los elementos
+- Active state claramente visible
+- Scroll personalizado
+
+## ✨ Características v2.0
 
 ### 🎯 Respuestas Personalizadas por Prompt
 Cada uno de los 3 prompts recomendados tiene ahora una **respuesta específica** con contenido accionable (~200 palabras) que aplica leyes de UX Writing específicas.
@@ -90,34 +108,40 @@ npm run preview
 ## 🌐 Uso
 
 1. Abre la aplicación en tu navegador (normalmente `http://localhost:5173`)
-2. **Opción A - Prompt recomendado:** Click en uno de los 3 prompts → Se genera automáticamente
-3. **Opción B - Texto personalizado:** Escribe tu idea y presiona "Generar idea creativa"
-4. Espera 2 segundos mientras la IA genera tu idea
+2. **Nuevo Chat**: Click en "✨ Nueva conversación" para empezar
+3. **Opción A - Prompt recomendado:** Click en uno de los 3 prompts → Se genera y guarda automáticamente
+4. **Opción B - Texto personalizado:** Escribe tu idea y presiona "Generar idea creativa"
 5. La página hace scroll automático a tu respuesta
-6. ¡Copia la idea o genera otra!
+6. **Historial**: Todas las conversaciones se guardan en el sidebar izquierdo
+7. **Gestión**: Click en cualquier conversación para cargarla, renombrar (✏️) o eliminar (🗑️)
 
 ### 💡 Cómo funcionan las respuestas
 
 - **Prompts recomendados (📱💡✍️)**: Tienen respuestas específicas predefinidas (~200 palabras) con planes accionables
 - **Texto personalizado**: Genera respuestas dinámicas adaptadas a tu input
 - **Badge UX**: Muestra qué ley de diseño se aplicó en cada respuesta
+- **Persistencia**: Todas las conversaciones se guardan automáticamente en localStorage
 
 ## 📁 Estructura del Proyecto
 
 ```
 chatAI/
 ├── src/
-│   ├── App.jsx          # Componente principal con lógica y respuestas
-│   ├── App.css          # Estilos personalizados futuristas
-│   ├── main.jsx         # Punto de entrada de React
-│   └── index.css        # Estilos globales con Tailwind
-├── index.html           # HTML principal
-├── package.json         # Dependencias y scripts
-├── vite.config.js       # Configuración de Vite
-├── tailwind.config.js   # Configuración de Tailwind
-├── postcss.config.js    # Configuración de PostCSS
-├── README.md            # Este archivo
-├── CHANGELOG.md         # Resumen de mejoras v2.0
+│   ├── components/
+│   │   ├── Sidebar.jsx       # Menú lateral con historial
+│   │   └── Sidebar.css       # Estilos del sidebar
+│   ├── App.jsx               # Componente principal con lógica multi-chat
+│   ├── App.css               # Estilos personalizados futuristas
+│   ├── main.jsx              # Punto de entrada de React
+│   └── index.css             # Estilos globales con Tailwind
+├── index.html                # HTML principal
+├── package.json              # Dependencias y scripts
+├── vite.config.js            # Configuración de Vite
+├── tailwind.config.js        # Configuración de Tailwind
+├── postcss.config.js         # Configuración de PostCSS
+├── README.md                 # Este archivo
+├── CHANGELOG.md              # Resumen de mejoras v2.0
+├── SIDEBAR_DOCUMENTATION.md  # Documentación del sistema de conversaciones
 └── RESPUESTAS_DOCUMENTATION.md  # Documentación completa de respuestas
 ```
 

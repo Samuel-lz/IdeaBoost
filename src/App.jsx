@@ -1,13 +1,126 @@
 import { useState, useRef, useEffect } from 'react';
+import Sidebar from './components/Sidebar';
 import './App.css';
 
 function App() {
+  // Estados de la conversación actual
   const [userInput, setUserInput] = useState('');
   const [generatedIdea, setGeneratedIdea] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [uxPrinciple, setUxPrinciple] = useState('');
   const resultRef = useRef(null);
+
+  // Estados del sidebar y conversaciones
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 768);
+  const [conversations, setConversations] = useState([]);
+  const [currentConversationId, setCurrentConversationId] = useState(null);
+
+  // Cargar conversaciones desde localStorage al iniciar
+  useEffect(() => {
+    const saved = localStorage.getItem('ideaboost-conversations');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setConversations(parsed);
+      // Seleccionar la última conversación si existe
+      if (parsed.length > 0) {
+        setCurrentConversationId(parsed[0].id);
+        loadConversation(parsed[0]);
+      }
+    }
+  }, []);
+
+  // Guardar conversaciones en localStorage cuando cambian
+  useEffect(() => {
+    if (conversations.length > 0) {
+      localStorage.setItem('ideaboost-conversations', JSON.stringify(conversations));
+    }
+  }, [conversations]);
+
+  // Cargar datos de una conversación
+  const loadConversation = (conv) => {
+    setUserInput(conv.userInput || '');
+    setGeneratedIdea(conv.generatedIdea || '');
+    setUxPrinciple(conv.uxPrinciple || '');
+    setError('');
+  };
+
+  // Guardar conversación actual
+  const saveCurrentConversation = (idea, principle, input) => {
+    if (!currentConversationId) {
+      // Crear nueva conversación
+      const newConv = {
+        id: Date.now(),
+        title: input.substring(0, 50) || 'Nueva conversación',
+        date: new Date().toLocaleDateString('es-ES', { 
+          day: 'numeric', 
+          month: 'short' 
+        }),
+        userInput: input,
+        generatedIdea: idea,
+        uxPrinciple: principle,
+        timestamp: Date.now()
+      };
+      setConversations(prev => [newConv, ...prev]);
+      setCurrentConversationId(newConv.id);
+    } else {
+      // Actualizar conversación existente
+      setConversations(prev => prev.map(conv => 
+        conv.id === currentConversationId 
+          ? { 
+              ...conv, 
+              userInput: input,
+              generatedIdea: idea, 
+              uxPrinciple: principle,
+              title: input.substring(0, 50) || conv.title,
+              timestamp: Date.now()
+            }
+          : conv
+      ));
+    }
+  };
+
+  // Nueva conversación
+  const handleNewChat = () => {
+    setCurrentConversationId(null);
+    setUserInput('');
+    setGeneratedIdea('');
+    setUxPrinciple('');
+    setError('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Seleccionar conversación
+  const handleSelectConversation = (id) => {
+    const conv = conversations.find(c => c.id === id);
+    if (conv) {
+      setCurrentConversationId(id);
+      loadConversation(conv);
+      if (window.innerWidth <= 768) {
+        setSidebarOpen(false);
+      }
+    }
+  };
+
+  // Eliminar conversación
+  const handleDeleteConversation = (id) => {
+    setConversations(prev => prev.filter(c => c.id !== id));
+    if (id === currentConversationId) {
+      handleNewChat();
+    }
+    // Limpiar localStorage si no quedan conversaciones
+    const remaining = conversations.filter(c => c.id !== id);
+    if (remaining.length === 0) {
+      localStorage.removeItem('ideaboost-conversations');
+    }
+  };
+
+  // Renombrar conversación
+  const handleRenameConversation = (id, newTitle) => {
+    setConversations(prev => prev.map(conv =>
+      conv.id === id ? { ...conv, title: newTitle } : conv
+    ));
+  };
 
   // Ejemplos de prompts guiados - Ley de Miller (máximo 3 opciones para mejor comprensión)
   const promptExamples = [
@@ -60,6 +173,8 @@ function App() {
       setGeneratedIdea(prompt.response);
       setUxPrinciple(prompt.principle);
       setIsLoading(false);
+      // Guardar en conversaciones
+      saveCurrentConversation(prompt.response, prompt.principle, userInput);
     }, 2000);
   };
 
@@ -92,6 +207,8 @@ function App() {
       setGeneratedIdea(randomIdea);
       setUxPrinciple("Ley de Tesler + Tono empático");
       setIsLoading(false);
+      // Guardar en conversaciones
+      saveCurrentConversation(randomIdea, "Ley de Tesler + Tono empático", userInput);
     }, 2000);
   };
 
@@ -110,27 +227,41 @@ function App() {
   }, [generatedIdea, isLoading]);
 
   return (
-    <div className="app-container">
-      {/* Fondo animado futurista */}
-      <div className="animated-background"></div>
-      
-      <div className="content-wrapper">
-        {/* 1. Título de la aplicación - Estilo: Minimalista */}
-        <header className="app-header">
-          <div className="logo-container">
-            <span className="logo-icon">⚡</span>
-            <h1 className="app-title">IdeaBoost</h1>
-          </div>
-          <p className="app-subtitle">Impulsa tu creatividad con IA</p>
-        </header>
+    <>
+      {/* Sidebar */}
+      <Sidebar
+        conversations={conversations}
+        currentConversationId={currentConversationId}
+        onNewChat={handleNewChat}
+        onSelectConversation={handleSelectConversation}
+        onDeleteConversation={handleDeleteConversation}
+        onRenameConversation={handleRenameConversation}
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+      />
 
-        <main className="main-content">
-          <form onSubmit={handleSubmit} className="idea-form">
-            {/* 2. Microcopy del campo de entrada - Estilo: Conversacional guiado */}
-            <div className="input-section">
-              <label htmlFor="userInput" className="input-label">
-                ¿Qué idea necesitas generar hoy?
-              </label>
+      {/* Main App */}
+      <div className={`app-container ${sidebarOpen ? 'with-sidebar' : ''}`}>
+        {/* Fondo animado futurista */}
+        <div className="animated-background"></div>
+        
+        <div className="content-wrapper">
+          {/* 1. Título de la aplicación - Estilo: Minimalista */}
+          <header className="app-header">
+            <div className="logo-container">
+              <span className="logo-icon">⚡</span>
+              <h1 className="app-title">IdeaBoost</h1>
+            </div>
+            <p className="app-subtitle">Impulsa tu creatividad con IA</p>
+          </header>
+
+          <main className="main-content">
+            <form onSubmit={handleSubmit} className="idea-form">
+              {/* 2. Microcopy del campo de entrada - Estilo: Conversacional guiado */}
+              <div className="input-section">
+                <label htmlFor="userInput" className="input-label">
+                  ¿Qué idea necesitas generar hoy?
+                </label>
               <textarea
                 id="userInput"
                 className={`input-field ${error ? 'input-error' : ''}`}
@@ -212,12 +343,7 @@ function App() {
                 <div className="result-actions">
                   <button 
                     className="secondary-button"
-                    onClick={() => {
-                      setGeneratedIdea('');
-                      setUserInput('');
-                      setUxPrinciple('');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
+                    onClick={handleNewChat}
                   >
                     Generar otra idea
                   </button>
@@ -247,6 +373,7 @@ function App() {
         </footer>
       </div>
     </div>
+    </>
   );
 }
 
